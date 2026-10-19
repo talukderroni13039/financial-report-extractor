@@ -2,7 +2,7 @@
 
 One line per deviation from `financial-report-extractor-architecture.md` (non-binding points only): **what** — why.
 
-- **Architecture doc not committed** (kept locally, excluded via `.git/info/exclude`) — it contains `sk-ant-...` placeholder strings that would trip the mandatory `git log -p | Select-String "sk-ant"` pre-push secret check; its content is summarised in `README.md` and `CLAUDE.md`.
+- **Architecture doc not committed** (kept locally, excluded via `.git/info/exclude`) — it contains API-key placeholder strings that would trip the mandatory pre-push secret grep; its content is summarised in `README.md` and `CLAUDE.md`.
 - **`.gitignore` uses `.env` + `.env.*` with `!.env.example`** — stricter than listing `.env.dev`/`.env.uat` individually; any future env file is ignored by default.
 - **Coverage uses `core = "sysmon"`, line (not branch) coverage** — the default C tracer takes ~60 s to import pypdf's glyph tables on this machine; sysmon on Python 3.12 has no branch support.
 - **`LLM_MAX_RETRIES` default is 2 (doc: 3 in dev)** — in Instructor `max_retries=N` means up to N+1 calls, so 2 = 3 attempts max; keeps cost bounded.
