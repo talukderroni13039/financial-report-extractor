@@ -25,6 +25,9 @@ curl.exe -F "text=Acme revenue for Q3 2026 was 4.2 billion dollars." http://loca
 curl.exe http://localhost:8000/health
 ```
 
+Running from VS Code and testing with Postman (plus ready-made test files): see
+[`docs/RUN_AND_TEST.md`](docs/RUN_AND_TEST.md). What to do next: [`docs/NEXT_STEPS.md`](docs/NEXT_STEPS.md).
+
 ### Configuration
 
 `main.py` loads `.env.{APP_ENV}` (`APP_ENV` defaults to `dev`); variables already set in the

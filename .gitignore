@@ -24,7 +24,9 @@ coverage.xml
 tests/.live_call_budget.json
 
 # Editors / OS
-.vscode/
+.vscode/*
+!.vscode/launch.json
+!.vscode/settings.json
 .idea/
 .DS_Store
 Thumbs.db
