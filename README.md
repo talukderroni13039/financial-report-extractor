@@ -3,6 +3,107 @@
 Extracts structured financial data (revenue, guidance, risks) from earnings call transcripts
 using Claude (`claude-haiku-5-5`) + Instructor + Pydantic v2, exposed as a FastAPI service.
 
+## Quick start (Windows / PowerShell)
+
+Prerequisites: [uv](https://docs.astral.sh/uv/) (installs Python 3.12 for you), optionally Docker.
+
+```powershell
+git clone https://github.com/talukderroni13039/financial-report-extractor.git
+cd financial-report-extractor
+uv sync                                   # creates .venv from uv.lock
+
+Copy-Item .env.example .env.dev           # then set ANTHROPIC_API_KEY in .env.dev
+$env:APP_ENV = "dev"
+uv run uvicorn src.main:app --reload      # http://localhost:8000/docs
+```
+
+Try it:
+
+```powershell
+curl.exe -F "file=@samples/q3_2026_acme_call.pdf" http://localhost:8000/api/v1/earnings-reports/extract
+curl.exe -F "text=Acme revenue for Q3 2026 was 4.2 billion dollars." http://localhost:8000/api/v1/earnings-reports/extract
+curl.exe http://localhost:8000/health
+```
+
+### Configuration
+
+`main.py` loads `.env.{APP_ENV}` (`APP_ENV` defaults to `dev`); variables already set in the
+process (e.g. by Docker `--env-file`) win. Only the API key is required — everything else has a
+safe default in code. There is no settings class: modules call `os.getenv` at call time.
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `APP_ENV` | `dev` | Selects `.env.dev` / `.env.uat`; reported by `/health` |
+| `LOG_LEVEL` | `INFO` | Root log level (JSON logs to stdout) |
+| `ANTHROPIC_API_KEY` | — | **Required** for real extraction calls |
+| `LLM_MODEL` | `claude-haiku-5-5` | Claude model |
+| `LLM_MAX_TOKENS` | `4000` | Max output tokens per call |
+| `LLM_MAX_RETRIES` | `2` | Instructor re-asks on validation failure (N re-asks = up to N+1 calls) |
+| `LLM_TIMEOUT_SECONDS` | `60` | Anthropic HTTP timeout |
+| `MAX_UPLOAD_MB` | `10` | Max upload size |
+| `MAX_TEXT_CHARS` | `300000` | Max transcript length sent to the LLM |
+
+### Run in UAT / Docker
+
+```powershell
+$env:APP_ENV = "uat"; uv run uvicorn src.main:app          # local, loads .env.uat
+
+docker build -t financial-report-extractor .
+docker run --rm --env-file .env.uat -p 8000:8000 financial-report-extractor
+curl.exe http://localhost:8000/health    # data.environment == "uat"
+```
+
+The image is multi-stage (uv builder → `python:3.12-slim`), runs as a non-root user, and
+`.dockerignore` excludes every `.env*` file — secrets only arrive via `--env-file` / env vars.
+
+## Development
+
+```powershell
+uv run pytest                      # mocked unit + integration tests, coverage ≥ 80% enforced
+uv run pytest -m live --no-cov     # 5 live tests against the real API (costs money)
+uv run ruff check .; uv run ruff format .; uv run mypy src
+uv run pre-commit install          # optional git hooks (ruff + mypy)
+uv run python -m scripts.capture_llm_fixture   # re-capture tests/fixtures/llm_response.json (1 real call)
+```
+
+- Tests never call the API: `app.dependency_overrides[get_llm_client]` swaps in a fake that
+  returns the saved real response in `tests/fixtures/llm_response.json`.
+- Live tests (`@pytest.mark.live`) are excluded by default and never run in CI. Every real HTTP
+  attempt is counted in `tests/.live_call_budget.json` (gitignored); at 50 calls they fail with
+  "live API budget exhausted" instead of calling.
+- CI (`.github/workflows/ci.yml`): ruff, ruff format check, mypy strict, mocked tests.
+
+## Project layout
+
+```
+src/
+├── main.py                 # env loading, app factory, middleware, handler, routers
+├── api_router.py           # /api/v1 — includes every domain router
+├── core/                   # dependencies (all DI), exceptions, exception_handlers, middleware,
+│                           # logging_config, health, schemas/api_response.py (envelope)
+├── domains/earnings_reports/
+│   ├── routers/api_endpoints.py
+│   ├── schemas/llm_extraction.py, earnings_report_result.py
+│   ├── services/extraction_service.py
+│   └── prompts/extraction_prompt.py
+├── llm/base.py (ExtractorClient Protocol), anthropic_client.py
+└── utils/file_reader.py
+```
+
+Request flow: middleware (request ID, timing) → router → `ExtractionService` (validate input,
+read file in a threadpool, enforce limits) → `ExtractorClient` (Instructor + Claude, retries) →
+`ApiResponse[EarningsReportResult]`. Any exception → one global handler → `ErrorResponse`.
+See `CLAUDE.md` for conventions and `docs/DECISIONS.md` for deviations from the original design.
+
+## Cost notes
+
+- Default model `claude-haiku-5-5` (cheapest current Claude); no sampling params are sent.
+- A ~1 page transcript costs ≈ 2.5K input + 350 output tokens per call (system prompt + schema
+  are ~2.2K of the input). Token usage is returned in `data.usage` and logged per request.
+- `MAX_TEXT_CHARS` and `MAX_UPLOAD_MB` are enforced before any LLM call; worst case per request is
+  `LLM_MAX_RETRIES + 1` calls.
+- Set a spend limit + email alert per workspace in the Claude Console; use separate keys for dev and UAT.
+
 ## Requirements
 
 ### Functional
@@ -41,7 +142,8 @@ using Claude (`claude-haiku-5-5`) + Instructor + Pydantic v2, exposed as a FastA
 | `text` | string |
 | `file` | `.txt` or `.pdf` upload |
 
-**200 — `ApiResponse[EarningsReportResult]`**
+**200 — `ApiResponse[EarningsReportResult]`** (illustrative; a real captured response is in
+`tests/fixtures/llm_response.json`)
 
 ```json
 {

@@ -73,11 +73,15 @@ docker run --rm --env-file .env.uat -p 8000:8000 financial-report-extractor
 - `alembic/` + `alembic.ini` at the repo root (standard Alembic layout).
 
 ## Testing rules
-- Default `uv run pytest` is fully mocked (`addopts` excludes `-m live`): fake `ExtractorClient` via
-  `app.dependency_overrides[get_llm_client]`, reusing `tests/fixtures/llm_response.json`.
+- Default `uv run pytest` is fully mocked (`addopts` excludes `-m live`): `tests/fakes.py`
+  `FakeExtractorClient` via `app.dependency_overrides[get_llm_client]` (see `tests/conftest.py`),
+  reusing `tests/fixtures/llm_response.json`. Build test PDFs with `tests/pdf_factory.build_pdf`.
+- `tests/conftest.py` sets `APP_ENV=test` before importing the app, so no real key is loaded.
+- Re-capture the fixture only via `uv run python -m scripts.capture_llm_fixture` (1 budgeted call).
 - Live tests: `@pytest.mark.live`, max 5 cases, `max_retries=1`, short transcript fixtures.
-- **Hard budget: 50 real Anthropic calls total**, tracked in `tests/.live_call_budget.json` (gitignored) by the
-  live fixture, which counts every HTTP attempt and fails with "live API budget exhausted" at 50.
+- **Hard budget: 50 real Anthropic calls total**, tracked in `tests/.live_call_budget.json` (gitignored) by
+  `tests/live_budget.py` (httpx request hook on the live client), which counts every HTTP attempt and
+  fails with "live API budget exhausted" at 50. Never reset or edit that file to get more calls.
 - Coverage ≥ 80% on `src/` (enforced by `--cov-fail-under=80`). Never run live tests in CI.
 
 ## Security and cost rules
