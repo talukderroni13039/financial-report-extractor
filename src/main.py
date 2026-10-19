@@ -11,6 +11,7 @@ from fastapi import FastAPI  # noqa: E402
 from fastapi.exceptions import RequestValidationError  # noqa: E402
 from starlette.exceptions import HTTPException as StarletteHTTPException  # noqa: E402
 
+from src.api_router import api_router  # noqa: E402
 from src.core.exception_handlers import global_exception_handler  # noqa: E402
 from src.core.exceptions import AppError  # noqa: E402
 from src.core.health import router as health_router  # noqa: E402
@@ -33,6 +34,7 @@ def create_app() -> FastAPI:
         app.add_exception_handler(exc_type, global_exception_handler)
 
     app.include_router(health_router)
+    app.include_router(api_router)
     return app
 
 
