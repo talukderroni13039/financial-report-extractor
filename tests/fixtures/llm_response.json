@@ -1,0 +1,40 @@
+{
+  "model": "claude-haiku-5-5",
+  "report": {
+    "company_name": "Acme Corp",
+    "period": "Q3 2026",
+    "revenue": {
+      "amount": 4200000000.0,
+      "currency": "USD",
+      "period": "Q3 2026"
+    },
+    "guidance": [
+      {
+        "metric": "revenue",
+        "low": 4400000000.0,
+        "high": 4600000000.0,
+        "period": "Q4 2026"
+      },
+      {
+        "metric": "EPS",
+        "low": 3.1,
+        "high": 3.2,
+        "period": "FY2026"
+      }
+    ],
+    "risks": [
+      {
+        "description": "Supply chain delays in Asia continue to constrain hardware shipments, expected to weigh on fourth quarter results.",
+        "severity": "high"
+      },
+      {
+        "description": "Foreign exchange headwinds from a stronger dollar had a modest impact this quarter.",
+        "severity": "low"
+      }
+    ]
+  },
+  "usage": {
+    "input_tokens": 2518,
+    "output_tokens": 338
+  }
+}
