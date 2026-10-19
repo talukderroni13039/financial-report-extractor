@@ -28,5 +28,5 @@ Status (2026-10-19): extraction API complete on `feature/extraction`; ruff/mypy/
 ## Housekeeping
 - `docs/DECISIONS.md` lists every deviation from the original architecture doc. Review and accept them.
 - The architecture doc is kept locally only (excluded via `.git/info/exclude`) because its key placeholders trip the secret grep.
-- The step 1 commit contains the literal placeholder text `sk-ant-...` in a docs note (no real key; verified).
-  If you want `git log -p | Select-String "sk-ant"` to return nothing, squash-merge the PR.
+- The step 1 commit contains the API-key placeholder prefix in a docs note (no real key; verified),
+  so the pre-push secret grep over `git log -p` matches it. Squash-merge the PR to keep `main` free of it.
