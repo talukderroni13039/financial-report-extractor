@@ -188,15 +188,15 @@ a global one without the packages. The equivalent without uv is:
 `.\.venv\Scripts\python.exe -m uvicorn src.main:app --reload`
 
 **Which environment is running?** Three places show it:
-1. The startup log line: `Started in 'dev' environment | Swagger UI: http://127.0.0.1:8000/docs | env file: .env.dev (loaded) | python: ...\.venv\Scripts\python.exe`
+1. The startup log line: `"message": "Application started", "environment": "dev", "docs_url": "http://127.0.0.1:8000/docs"`
 2. The Swagger page title: **Financial Report Extractor API [dev]**
 3. <http://localhost:8000/health> → `"environment": "dev"`
 
 `APP_ENV` defaults to `dev`. For UAT: `$env:APP_ENV = "uat"` then start again (loads `.env.uat`).
 `$env:APP_ENV` only lasts for that terminal window.
 
-**Is it running from this project's venv?** The startup line prints `python: ...\financial-report-extractor\.venv\Scripts\python.exe`.
-You can also run `uv run python -c "import sys; print(sys.executable)"`. In VS Code the bottom-right status bar shows the selected interpreter (`.venv`).
+**Is it running from this project's venv?** Run `uv run python -c "import sys; print(sys.executable)"`;
+it should print `...\financial-report-extractor\.venv\Scripts\python.exe`. In VS Code the bottom-right status bar shows the selected interpreter (`.venv`).
 
 **Can other projects interfere?** No. Each project has its own `.venv` folder, and `uv run` picks the
 `.venv` next to the `pyproject.toml` of the folder you're in. Only the **port** is shared: if another

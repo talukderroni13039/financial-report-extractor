@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 # Load env BEFORE importing anything else from src.
 # load_dotenv does not override vars that are already set (e.g. by Docker --env-file).
 APP_ENV = os.getenv("APP_ENV", "dev")
-ENV_FILE = f".env.{APP_ENV}"
-ENV_FILE_LOADED = load_dotenv(ENV_FILE)
+load_dotenv(f".env.{APP_ENV}")
 
 import logging  # noqa: E402
 import sys  # noqa: E402
@@ -46,16 +45,9 @@ def _base_url() -> str:
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
-    base_url = _base_url()
-    env_file_status = "loaded" if ENV_FILE_LOADED else "not found, using process env/defaults"
     logger.info(
-        "Started in '%s' environment | Swagger UI: %s/docs | env file: %s (%s) | python: %s",
-        os.getenv("APP_ENV", "dev"),
-        base_url,
-        ENV_FILE,
-        env_file_status,
-        sys.executable,
-        extra={"environment": os.getenv("APP_ENV", "dev"), "docs_url": f"{base_url}/docs"},
+        "Application started",
+        extra={"environment": os.getenv("APP_ENV", "dev"), "docs_url": f"{_base_url()}/docs"},
     )
     yield
 

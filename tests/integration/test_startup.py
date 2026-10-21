@@ -23,10 +23,10 @@ def test_startup_log_shows_environment_and_docs_url(
     with caplog.at_level(logging.INFO, logger="src.main"), TestClient(app):
         pass
 
-    message = next(r.getMessage() for r in caplog.records if r.name == "src.main")
-    assert "'test' environment" in message
-    assert "http://127.0.0.1:8001/docs" in message
-    assert sys.executable in message
+    record = next(r for r in caplog.records if r.name == "src.main")
+    assert record.getMessage() == "Application started"
+    assert record.environment == "test"
+    assert record.docs_url == "http://127.0.0.1:8001/docs"
 
 
 @pytest.mark.parametrize(
