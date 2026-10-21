@@ -1,0 +1,88 @@
+{
+  "info": {
+    "name": "Financial Report Extractor",
+    "description": "Local testing collection. Set the baseUrl variable; for file requests pick a file from samples/test_files in the Body tab.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "baseUrl", "value": "http://localhost:8000" }],
+  "item": [
+    {
+      "name": "Health",
+      "request": { "method": "GET", "url": "{{baseUrl}}/health" }
+    },
+    {
+      "name": "Extract - text",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/earnings-reports/extract",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "text",
+              "type": "text",
+              "value": "Initech Corp Q1 2026: total revenue for the quarter was $4.2 billion. For Q2 we expect revenue of $4.3 to $4.5 billion. Chip shortages remain a significant risk."
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Extract - .txt file",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/earnings-reports/extract",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "file", "type": "file", "src": "samples/test_files/01_full_quarter_with_guidance.txt" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Extract - .pdf file",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/earnings-reports/extract",
+        "body": {
+          "mode": "formdata",
+          "formdata": [{ "key": "file", "type": "file", "src": "samples/q3_2026_acme_call.pdf" }]
+        }
+      }
+    },
+    {
+      "name": "Error - both text and file (400)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/earnings-reports/extract",
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            { "key": "text", "type": "text", "value": "Revenue was $1 billion." },
+            { "key": "file", "type": "file", "src": "samples/test_files/04_short_one_liner.txt" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Error - no input (400)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/earnings-reports/extract",
+        "body": { "mode": "formdata", "formdata": [] }
+      }
+    },
+    {
+      "name": "Error - empty file (400)",
+      "request": {
+        "method": "POST",
+        "url": "{{baseUrl}}/api/v1/earnings-reports/extract",
+        "body": {
+          "mode": "formdata",
+          "formdata": [{ "key": "file", "type": "file", "src": "samples/test_files/05_empty.txt" }]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+# Never ship secrets
+.env
+.env.*
+
+# Local environments, caches, VCS
+.venv/
+**/__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.git/
+.github/
+
+# Not needed at runtime
+tests/
+samples/
+scripts/
+docs/
+*.md
+.pre-commit-config.yaml
+Dockerfile
+.dockerignore

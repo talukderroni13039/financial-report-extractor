@@ -1,0 +1,4 @@
+* text=auto eol=lf
+*.pdf binary
+*.png binary
+samples/test_files/07_latin1_encoded.txt -text
