@@ -148,12 +148,12 @@ All files are in `samples\test_files\` (plus one PDF in `samples\`).
 
 | File | Expected result |
 |---|---|
-| `01_full_quarter_with_guidance.txt` | 200, revenue `1850000000`, 2 guidance items, 3 risks |
+| `01_full_quarter_with_guidance.txt` | 200, revenue `1850000000`, 3 guidance rows (2 revenue ranges + operating_margin 24 percent), 3 risks |
 | `02_no_guidance.txt` | 200, revenue `612000000`, `"guidance": []` |
 | `03_euro_company.txt` | 200, `"currency": "EUR"`, revenue `2300000000` |
 | `04_short_one_liner.txt` | 200, revenue `4200000000` |
 | `05_empty.txt` | 400 `INVALID_INPUT` (empty transcript) |
-| `06_not_a_transcript.txt` | 200, mostly `null` / empty lists (nothing invented) |
+| `06_not_a_transcript.txt` | 422 `NOT_EARNINGS_TRANSCRIPT` |
 | `07_latin1_encoded.txt` | 200, `"currency": "GBP"` |
 | `samples\q3_2026_acme_call.pdf` | 200, `"source_type": "pdf"`, revenue `4200000000` |
 | any `.docx` / `.png` | 415 `UNSUPPORTED_FILE_TYPE` |
@@ -161,7 +161,7 @@ All files are in `samples\test_files\` (plus one PDF in `samples\`).
 Success shape: `{ "success": true, "data": {...}, "meta": { "request_id", "processing_time_ms" } }`
 Error shape: `{ "success": false, "error": { "code", "message" }, "meta": {...} }`
 
-> Each successful extract is a **real, paid** Claude call (very cheap with Haiku, ~2.5K tokens for a small file).
+> Each successful extract is a **real, paid** Claude call (very cheap with Haiku, ~3.5K tokens for a small file).
 > Error cases (400/413/415/422) never call Claude.
 
 ---

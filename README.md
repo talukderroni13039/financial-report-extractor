@@ -101,8 +101,8 @@ See `CLAUDE.md` for conventions and `docs/DECISIONS.md` for deviations from the 
 ## Cost notes
 
 - Default model `claude-haiku-5-5` (cheapest current Claude); no sampling params are sent.
-- A ~1 page transcript costs ≈ 2.5K input + 350 output tokens per call (system prompt + schema
-  are ~2.2K of the input). Token usage is returned in `data.usage` and logged per request.
+- A ~1 page transcript costs ≈ 3.5K input + 500 output tokens per call (system prompt + schema
+  are ~3K of the input; up from 2.5K after adding quotes and units). Token usage is returned in `data.usage` and logged per request.
 - `MAX_TEXT_CHARS` and `MAX_UPLOAD_MB` are enforced before any LLM call; worst case per request is
   `LLM_MAX_RETRIES + 1` calls.
 - Set a spend limit + email alert per workspace in the Claude Console; use separate keys for dev and UAT.
@@ -158,9 +158,15 @@ See `CLAUDE.md` for conventions and `docs/DECISIONS.md` for deviations from the 
     "report": {
       "company_name": "Acme Corp",
       "period": "Q3 2026",
-      "revenue": { "amount": 4200000000, "currency": "USD", "period": "Q3 2026" },
+      "is_earnings_call": true,
+      "revenue": {
+        "value": 4.2, "unit": "billion", "amount": 4200000000, "currency": "USD", "period": "Q3 2026",
+        "quote": "Total revenue for Q3 2026 was $4.2 billion"
+      },
       "guidance": [
-        { "metric": "revenue", "low": 4400000000, "high": 4600000000, "period": "Q4 2026" }
+        { "metric": "revenue", "unit": "currency", "magnitude": "billion",
+          "low_value": 4.4, "high_value": 4.6, "low": 4400000000, "high": 4600000000,
+          "period": "Q4 2026", "quote": "we expect revenue in the range of $4.4 billion to $4.6 billion" }
       ],
       "risks": [{ "description": "Supply chain delays in Asia", "severity": "medium" }]
     },
@@ -187,9 +193,20 @@ See `CLAUDE.md` for conventions and `docs/DECISIONS.md` for deviations from the 
 | 415 | `UNSUPPORTED_FILE_TYPE` | Not `.txt` / `.pdf` |
 | 422 | `FILE_PARSE_FAILED` | Corrupt PDF, scanned PDF with no text |
 | 422 | `VALIDATION_ERROR` | Malformed request (FastAPI request validation) |
-| 502 | `EXTRACTION_FAILED` | LLM output invalid after retries, Anthropic API error |
+| 422 | `NOT_EARNINGS_TRANSCRIPT` | Text is not an earnings call (e.g. a shopping list) |
+| 422 | `NO_FINANCIAL_DATA` | An earnings call, but no revenue, guidance or risks found |
+| 502 | `EXTRACTION_INVALID` | The model's answer kept failing validation (e.g. figure not in the transcript) after all retries |
+| 502 | `EXTRACTION_FAILED` | Anthropic API / network error |
 | 504 | `LLM_TIMEOUT` | Claude call exceeded timeout |
 | 500 | `INTERNAL_ERROR` | Unexpected bug (generic message, no stack trace) |
+
+**How figures are produced and checked:** the model returns each number exactly as written
+(`value` + magnitude `unit`) plus the exact `quote` it came from. Code computes `amount` / `low` /
+`high`, and rejects (then retries) any figure whose quote is not in the transcript, whose number
+is not in its quote, or whose magnitude word does not match. `currency` is `null` when the text
+states none. Guidance `metric` is one of `revenue`, `revenue_growth`, `eps`, `operating_margin`,
+`gross_margin`, `operating_income`, `net_income`, `other`, with `unit` `currency` / `per_share` /
+`percent` (24 = 24%). Accuracy on the labelled set: see [`docs/EVAL.md`](docs/EVAL.md).
 
 ### `GET /health`
 

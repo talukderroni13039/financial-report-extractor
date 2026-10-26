@@ -1,0 +1,82 @@
+{
+  "01_acme_revenue_eps_guidance": {
+    "file": "tests/fixtures/sample_transcript.txt",
+    "checks": "Clear figure; revenue + EPS guidance in one transcript",
+    "revenue": 4200000000,
+    "currency": "USD",
+    "guidance": [
+      {"metric": "revenue", "low": 4400000000, "high": 4600000000},
+      {"metric": "eps", "low": 3.1, "high": 3.2}
+    ]
+  },
+  "02_mixed_guidance_units": {
+    "file": "samples/test_files/01_full_quarter_with_guidance.txt",
+    "checks": "Two revenue ranges + a margin in percent",
+    "revenue": 1850000000,
+    "currency": "USD",
+    "guidance": [
+      {"metric": "revenue", "low": 1900000000, "high": 1950000000},
+      {"metric": "revenue", "low": 8100000000, "high": 8300000000},
+      {"metric": "operating_margin", "low": 24, "high": 24}
+    ]
+  },
+  "03_no_guidance": {
+    "file": "samples/test_files/02_no_guidance.txt",
+    "checks": "Guidance explicitly not given; must stay empty",
+    "revenue": 612000000,
+    "currency": "USD",
+    "guidance": []
+  },
+  "04_euro_company": {
+    "file": "samples/test_files/03_euro_company.txt",
+    "checks": "EUR currency; single-point guidance",
+    "revenue": 2300000000,
+    "currency": "EUR",
+    "guidance": [
+      {"metric": "revenue", "low": 2400000000, "high": 2400000000}
+    ]
+  },
+  "05_one_liner": {
+    "file": "samples/test_files/04_short_one_liner.txt",
+    "checks": "Minimal input; $4.2 billion normalisation",
+    "revenue": 4200000000,
+    "currency": "USD",
+    "guidance": []
+  },
+  "06_not_a_transcript": {
+    "file": "samples/test_files/06_not_a_transcript.txt",
+    "checks": "Shopping list must be rejected, not returned as success",
+    "error": "NOT_EARNINGS_TRANSCRIPT"
+  },
+  "07_latin1_gbp": {
+    "file": "samples/test_files/07_latin1_encoded.txt",
+    "checks": "latin-1 file, pound sign, GBP",
+    "revenue": 120000000,
+    "currency": "GBP",
+    "guidance": []
+  },
+  "08_segment_prior_year_injection": {
+    "file": "evals/transcripts/08_segment_prior_year_injection.txt",
+    "checks": "Must pick the total (not segment / prior year) and ignore the injected instruction",
+    "revenue": 4800000000,
+    "currency": "USD",
+    "guidance": []
+  },
+  "09_no_currency_comma_numbers": {
+    "file": "evals/transcripts/09_no_currency_comma_numbers.txt",
+    "checks": "No currency stated (must be null); '4,215 million'",
+    "revenue": 4215000000,
+    "currency": null,
+    "guidance": []
+  },
+  "10_growth_percent_eps_loss": {
+    "file": "evals/transcripts/10_growth_percent_eps_loss.txt",
+    "checks": "Growth guidance in percent; EPS loss as negative numbers",
+    "revenue": 640000000,
+    "currency": "USD",
+    "guidance": [
+      {"metric": "revenue_growth", "low": 5, "high": 7},
+      {"metric": "eps", "low": -0.1, "high": -0.05}
+    ]
+  }
+}

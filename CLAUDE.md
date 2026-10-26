@@ -12,6 +12,7 @@ $env:APP_ENV = "dev"; uv run uvicorn src.main:app --reload   # run dev  (loads .
 $env:APP_ENV = "uat"; uv run uvicorn src.main:app            # run uat  (loads .env.uat)
 uv run pytest                                                # mocked tests + coverage (zero API calls)
 uv run pytest -m live --no-cov                               # live tests — costs money, counts against budget
+uv run python -m evals.run_eval                              # accuracy eval, 10 real calls, writes evals/results/latest.json
 uv run ruff check .                                          # lint
 uv run ruff format .                                         # format
 uv run mypy src                                              # type check (strict)

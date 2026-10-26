@@ -19,7 +19,7 @@ Status (2026-10-19): extraction API complete on `feature/extraction`; ruff/mypy/
 - **Monitoring:** ship JSON logs to your log platform; alert on 5xx, `LLM_TIMEOUT`, `EXTRACTION_FAILED` rates and token usage.
 
 ## Product / quality improvements
-- **Eval set:** 20–50 real transcripts with expected values to measure extraction accuracy before changing prompt/model.
+- **Eval set:** grow `evals/labels.json` (10 transcripts today, 10/10 passing; see `docs/EVAL.md`) to 20–50 real transcripts, and run 3x per file to measure stability.
 - **Long transcripts:** chunking or summarisation for inputs above `MAX_TEXT_CHARS`.
 - **Scanned PDFs:** optional OCR (e.g. Tesseract) instead of returning 422.
 - More fields if needed (EPS, margins, segment revenue), which means extending `schemas/llm_extraction.py` + prompt.
