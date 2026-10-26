@@ -1,25 +1,39 @@
 {
   "model": "claude-haiku-5-5",
   "report": {
+    "is_earnings_call": true,
     "company_name": "Acme Corp",
     "period": "Q3 2026",
     "revenue": {
-      "amount": 4200000000.0,
+      "value": 4.2,
+      "unit": "billion",
       "currency": "USD",
-      "period": "Q3 2026"
+      "period": "Q3 2026",
+      "quote": "Total revenue for Q3 2026 was $4.2 billion, up 8 percent year over year, driven by strong demand",
+      "amount": 4200000000.0
     },
     "guidance": [
       {
         "metric": "revenue",
+        "unit": "currency",
+        "magnitude": "billion",
+        "low_value": 4.4,
+        "high_value": 4.6,
+        "period": "Q4 2026",
+        "quote": "we expect revenue in the range of $4.4 billion to $4.6 billion",
         "low": 4400000000.0,
-        "high": 4600000000.0,
-        "period": "Q4 2026"
+        "high": 4600000000.0
       },
       {
-        "metric": "EPS",
+        "metric": "eps",
+        "unit": "per_share",
+        "magnitude": "ones",
+        "low_value": 3.1,
+        "high_value": 3.2,
+        "period": "FY2026",
+        "quote": "We expect full-year 2026 earnings per share between $3.10 and $3.20",
         "low": 3.1,
-        "high": 3.2,
-        "period": "FY2026"
+        "high": 3.2
       }
     ],
     "risks": [
@@ -34,7 +48,7 @@
     ]
   },
   "usage": {
-    "input_tokens": 2518,
-    "output_tokens": 338
+    "input_tokens": 3451,
+    "output_tokens": 521
   }
 }

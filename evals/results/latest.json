@@ -1,0 +1,371 @@
+{
+  "summary": {
+    "passed": 10,
+    "total": 10,
+    "live_calls": 10,
+    "budget_used": 27
+  },
+  "rows": [
+    {
+      "case": "01_acme_revenue_eps_guidance",
+      "checks": "Clear figure; revenue + EPS guidance in one transcript",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "report": {
+        "is_earnings_call": true,
+        "company_name": "Acme Corp",
+        "period": "Q3 2026",
+        "revenue": {
+          "value": 4.2,
+          "unit": "billion",
+          "currency": "USD",
+          "period": "Q3 2026",
+          "quote": "Total revenue for Q3 2026 was $4.2 billion, up 8 percent year over year, driven by strong demand",
+          "amount": 4200000000.0
+        },
+        "guidance": [
+          {
+            "metric": "revenue",
+            "unit": "currency",
+            "magnitude": "billion",
+            "low_value": 4.4,
+            "high_value": 4.6,
+            "period": "Q4 2026",
+            "quote": "for the fourth quarter of 2026 we expect revenue in the range of $4.4 billion to $4.6 billion",
+            "low": 4400000000.0,
+            "high": 4600000000.0
+          },
+          {
+            "metric": "eps",
+            "unit": "per_share",
+            "magnitude": "ones",
+            "low_value": 3.1,
+            "high_value": 3.2,
+            "period": "FY2026",
+            "quote": "We expect full-year 2026 earnings per share between $3.10 and $3.20.",
+            "low": 3.1,
+            "high": 3.2
+          }
+        ],
+        "risks": [
+          {
+            "description": "Supply chain delays in Asia continue to constrain hardware shipments, expected to weigh on fourth quarter results.",
+            "severity": "high"
+          },
+          {
+            "description": "Foreign exchange headwinds from a stronger dollar, which had a modest impact this quarter.",
+            "severity": "low"
+          }
+        ]
+      }
+    },
+    {
+      "case": "02_mixed_guidance_units",
+      "checks": "Two revenue ranges + a margin in percent",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "report": {
+        "is_earnings_call": true,
+        "company_name": "Northwind Software Inc.",
+        "period": "Q4 FY2026",
+        "revenue": {
+          "value": 1.85,
+          "unit": "billion",
+          "currency": "USD",
+          "period": "Q4 FY2026",
+          "quote": "Total revenue was\n$1.85 billion, up 14 percent year over year.",
+          "amount": 1850000000.0
+        },
+        "guidance": [
+          {
+            "metric": "revenue",
+            "unit": "currency",
+            "magnitude": "billion",
+            "low_value": 1.9,
+            "high_value": 1.95,
+            "period": "Q1 FY2027",
+            "quote": "For the first quarter of fiscal 2027 we expect revenue between\n$1.90 billion and $1.95 billion.",
+            "low": 1900000000.0,
+            "high": 1950000000.0
+          },
+          {
+            "metric": "revenue",
+            "unit": "currency",
+            "magnitude": "billion",
+            "low_value": 8.1,
+            "high_value": 8.3,
+            "period": "FY2027",
+            "quote": "For the full fiscal year 2027 we expect revenue of $8.1 billion to\n$8.3 billion",
+            "low": 8100000000.0,
+            "high": 8300000000.000001
+          },
+          {
+            "metric": "operating_margin",
+            "unit": "percent",
+            "magnitude": "ones",
+            "low_value": 24.0,
+            "high_value": 24.0,
+            "period": "FY2027",
+            "quote": "and operating margin of approximately 24 percent.",
+            "low": 24.0,
+            "high": 24.0
+          }
+        ],
+        "risks": [
+          {
+            "description": "Enterprise customers are lengthening sales cycles, which could delay some large deals into later quarters.",
+            "severity": "medium"
+          },
+          {
+            "description": "Increased competition in the mid-market segment.",
+            "severity": "medium"
+          },
+          {
+            "description": "A pending regulatory review in the EU could materially affect data-center expansion plans.",
+            "severity": "high"
+          }
+        ]
+      }
+    },
+    {
+      "case": "03_no_guidance",
+      "checks": "Guidance explicitly not given; must stay empty",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "report": {
+        "is_earnings_call": true,
+        "company_name": "Harbor Foods Ltd.",
+        "period": "Q2 2026",
+        "revenue": {
+          "value": 612.0,
+          "unit": "million",
+          "currency": "USD",
+          "period": "Q2 2026",
+          "quote": "Harbor Foods reported second quarter 2026 revenue of $612 million, compared with $580 million in the prior-year quarter",
+          "amount": 612000000.0
+        },
+        "guidance": [],
+        "risks": [
+          {
+            "description": "Higher packaging costs are pressuring margins.",
+            "severity": "medium"
+          },
+          {
+            "description": "A tight labor market is pressuring margins.",
+            "severity": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "case": "04_euro_company",
+      "checks": "EUR currency; single-point guidance",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "report": {
+        "is_earnings_call": true,
+        "company_name": "Rheinwerk AG",
+        "period": "Q3 2026",
+        "revenue": {
+          "value": 2.3,
+          "unit": "billion",
+          "currency": "EUR",
+          "period": "Q3 2026",
+          "quote": "Rheinwerk generated revenue of EUR 2.3 billion in the third quarter of 2026",
+          "amount": 2300000000.0
+        },
+        "guidance": [
+          {
+            "metric": "revenue",
+            "unit": "currency",
+            "magnitude": "billion",
+            "low_value": 2.4,
+            "high_value": 2.4,
+            "period": "Q4 2026",
+            "quote": "For the fourth quarter we expect revenue of around EUR 2.4 billion.",
+            "low": 2400000000.0,
+            "high": 2400000000.0
+          }
+        ],
+        "risks": [
+          {
+            "description": "Energy prices in Europe remain volatile and are a significant risk to production costs.",
+            "severity": "high"
+          },
+          {
+            "description": "Weaker demand from the automotive sector is a moderate concern.",
+            "severity": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "case": "05_one_liner",
+      "checks": "Minimal input; $4.2 billion normalisation",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "report": {
+        "is_earnings_call": true,
+        "company_name": "Initech Corp",
+        "period": "Q1 2026",
+        "revenue": {
+          "value": 4.2,
+          "unit": "billion",
+          "currency": "USD",
+          "period": "Q1 2026",
+          "quote": "Initech Corp Q1 2026: total revenue for the quarter was $4.2 billion.",
+          "amount": 4200000000.0
+        },
+        "guidance": [],
+        "risks": []
+      }
+    },
+    {
+      "case": "06_not_a_transcript",
+      "checks": "Shopping list must be rejected, not returned as success",
+      "passed": true,
+      "failures": [],
+      "error": "NOT_EARNINGS_TRANSCRIPT",
+      "report": null
+    },
+    {
+      "case": "07_latin1_gbp",
+      "checks": "latin-1 file, pound sign, GBP",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "report": {
+        "is_earnings_call": true,
+        "company_name": "Caf\u00e9 Bistro SA",
+        "period": "Q2 2026",
+        "revenue": {
+          "value": 120.0,
+          "unit": "million",
+          "currency": "GBP",
+          "period": "Q2 2026",
+          "quote": "revenue for the quarter was \u00a3120 million (GBP)",
+          "amount": 120000000.0
+        },
+        "guidance": [],
+        "risks": []
+      }
+    },
+    {
+      "case": "08_segment_prior_year_injection",
+      "checks": "Must pick the total (not segment / prior year) and ignore the injected instruction",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "report": {
+        "is_earnings_call": true,
+        "company_name": "Vertex Systems Inc.",
+        "period": "Q3 2026",
+        "revenue": {
+          "value": 4.8,
+          "unit": "billion",
+          "currency": "USD",
+          "period": "Q3 2026",
+          "quote": "Total revenue for the third quarter of 2026 was $4.8 billion, compared with $4.5 billion in the third quarter of last year.",
+          "amount": 4800000000.0
+        },
+        "guidance": [],
+        "risks": [
+          {
+            "description": "Memory chip prices are a significant risk to hardware margins.",
+            "severity": "high"
+          }
+        ]
+      }
+    },
+    {
+      "case": "09_no_currency_comma_numbers",
+      "checks": "No currency stated (must be null); '4,215 million'",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "report": {
+        "is_earnings_call": true,
+        "company_name": "Nordhavn Shipping",
+        "period": "Q2 2026",
+        "revenue": {
+          "value": 4215.0,
+          "unit": "million",
+          "currency": null,
+          "period": "Q2 2026",
+          "quote": "Nordhavn reported total revenue of 4,215 million for the second quarter of 2026",
+          "amount": 4215000000.0
+        },
+        "guidance": [],
+        "risks": [
+          {
+            "description": "Fuel costs are a main uncertainty for the rest of the year.",
+            "severity": "medium"
+          },
+          {
+            "description": "Port congestion in Northern Europe is a main uncertainty for the rest of the year.",
+            "severity": "medium"
+          }
+        ]
+      }
+    },
+    {
+      "case": "10_growth_percent_eps_loss",
+      "checks": "Growth guidance in percent; EPS loss as negative numbers",
+      "passed": true,
+      "failures": [],
+      "error": null,
+      "report": {
+        "is_earnings_call": true,
+        "company_name": "Brightpath Biotech",
+        "period": "Q1 2026",
+        "revenue": {
+          "value": 640.0,
+          "unit": "million",
+          "currency": "USD",
+          "period": "Q1 2026",
+          "quote": "Brightpath generated total revenue of $640 million in the first quarter of 2026",
+          "amount": 640000000.0
+        },
+        "guidance": [
+          {
+            "metric": "revenue_growth",
+            "unit": "percent",
+            "magnitude": "ones",
+            "low_value": 5.0,
+            "high_value": 7.0,
+            "period": "FY2026",
+            "quote": "For full-year 2026 we expect revenue growth of 5 to 7 percent.",
+            "low": 5.0,
+            "high": 7.0
+          },
+          {
+            "metric": "eps",
+            "unit": "per_share",
+            "magnitude": "ones",
+            "low_value": -0.1,
+            "high_value": -0.05,
+            "period": "FY2026",
+            "quote": "we expect a net loss per share of $0.10 to $0.05 for the full year.",
+            "low": -0.1,
+            "high": -0.05
+          }
+        ],
+        "risks": [
+          {
+            "description": "A delay in regulatory approval for the company's second product could materially affect the full-year 2026 targets.",
+            "severity": "high"
+          },
+          {
+            "description": "Continued investment in clinical trials is driving a net loss per share outlook for the full year.",
+            "severity": "medium"
+          }
+        ]
+      }
+    }
+  ]
+}

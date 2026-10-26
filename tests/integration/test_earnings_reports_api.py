@@ -4,7 +4,8 @@ from typing import Any
 import pytest
 from fastapi.testclient import TestClient
 
-from src.core.exceptions import ExtractionFailedError, LLMTimeoutError
+from src.core.exceptions import ExtractionFailedError, ExtractionInvalidError, LLMTimeoutError
+from src.domains.earnings_reports.schemas import EarningsReport
 from src.main import app
 from tests.fakes import FakeExtractorClient
 from tests.pdf_factory import build_pdf
@@ -119,6 +120,7 @@ def test_corrupt_pdf_returns_422(client: TestClient) -> None:
     ("error", "status_code", "code"),
     [
         (ExtractionFailedError("Could not extract"), 502, "EXTRACTION_FAILED"),
+        (ExtractionInvalidError("Failed validation"), 502, "EXTRACTION_INVALID"),
         (LLMTimeoutError("timed out"), 504, "LLM_TIMEOUT"),
     ],
 )
@@ -154,3 +156,30 @@ def test_openapi_documents_extract_endpoint(client: TestClient) -> None:
     operation = schema["paths"][URL]["post"]
     assert "multipart/form-data" in operation["requestBody"]["content"]
     assert {"200", "400", "413", "415", "422", "502", "504"} <= set(operation["responses"])
+
+
+def test_not_a_transcript_returns_422(client: TestClient, fake_llm: FakeExtractorClient) -> None:
+    fake_llm.report = EarningsReport(is_earnings_call=False)
+
+    response = client.post(URL, data={"text": "Shopping list: eggs, milk, bread, coffee."})
+
+    _assert_error(response, 422, "NOT_EARNINGS_TRANSCRIPT")
+
+
+def test_no_financial_data_returns_422(client: TestClient, fake_llm: FakeExtractorClient) -> None:
+    fake_llm.report = EarningsReport(is_earnings_call=True)
+
+    response = client.post(URL, data={"text": "Operator: welcome. Thank you, goodbye."})
+
+    _assert_error(response, 422, "NO_FINANCIAL_DATA")
+
+
+def test_success_includes_value_unit_quote_and_computed_amount(client: TestClient) -> None:
+    response = client.post(URL, data={"text": "Acme revenue was $4.2 billion."})
+
+    revenue = response.json()["data"]["report"]["revenue"]
+    assert (revenue["value"], revenue["unit"], revenue["amount"]) == (4.2, "billion", 4.2e9)
+    assert "$4.2 billion" in revenue["quote"]
+    guidance = response.json()["data"]["report"]["guidance"]
+    assert {g["metric"] for g in guidance} == {"revenue", "eps"}
+    assert {g["unit"] for g in guidance} == {"currency", "per_share"}

@@ -20,3 +20,9 @@ One line per deviation from `financial-report-extractor-architecture.md` (non-bi
 - **Added `tests/fakes.py`, `tests/pdf_factory.py`, `tests/live_budget.py`, `scripts/capture_llm_fixture.py`** — fake `ExtractorClient`, in-memory text PDFs (no PDF-writing dependency), the 50-call budget guard, and the one-shot fixture capture.
 - **Extra mocked tests beyond the doc** (Anthropic client error mapping, middleware/handler, budget guard) — needed for the ≥80% coverage gate and to prove the budget guard blocks at 50.
 - **JSON structured logs (`core/logging_config.py`) with request ID via contextvar** — doc only had `basicConfig`; task requires structured logging. Third-party HTTP/SDK loggers are capped at WARNING so request bodies are never logged.
+- **Model returns numbers as written (`value` + magnitude) plus an exact `quote`; code computes amounts and checks each quote against the transcript** (review `guide.md` §1–2) — a schema alone cannot catch a valid-looking wrong number; mismatches are sent back to the model as retries.
+- **`currency` is nullable, no USD default** (review §3) — the old default contradicted "never infer".
+- **`is_earnings_call` + 422 `NOT_EARNINGS_TRANSCRIPT` / `NO_FINANCIAL_DATA`** (review §3) — an empty answer must not look like success.
+- **Guidance `metric` is a fixed list with a `unit`; metric↔unit enforced; percent written as 24** (review §4).
+- **502 `EXTRACTION_INVALID` separate from `EXTRACTION_FAILED`; failed checks logged without values** (review §1C).
+- **Skipped from the review:** revenue floors / guidance-vs-revenue limits and period-equality checks (false rejections), regex baseline, 3x repeat runs (cost; later).

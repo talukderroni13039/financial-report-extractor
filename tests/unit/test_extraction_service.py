@@ -11,8 +11,11 @@ from src.core.exceptions import (
     InputTooLargeError,
     InvalidInputError,
     LLMTimeoutError,
+    NoFinancialDataError,
+    NotEarningsTranscriptError,
     UnsupportedFileTypeError,
 )
+from src.domains.earnings_reports.schemas import EarningsReport
 from src.domains.earnings_reports.services.extraction_service import ExtractionService
 from tests.fakes import FakeExtractorClient
 from tests.pdf_factory import build_pdf
@@ -158,3 +161,32 @@ async def test_llm_failure_propagates() -> None:
 
 def test_get_extraction_service_wraps_client(fake_client: FakeExtractorClient) -> None:
     assert isinstance(get_extraction_service(fake_client), ExtractionService)
+
+
+async def test_not_an_earnings_call_is_rejected(
+    service: ExtractionService, fake_client: FakeExtractorClient
+) -> None:
+    fake_client.report = EarningsReport(is_earnings_call=False)
+
+    with pytest.raises(NotEarningsTranscriptError):
+        await service.extract(text="Shopping list: eggs, milk, bread.")
+
+
+async def test_earnings_call_with_nothing_found_is_rejected(
+    service: ExtractionService, fake_client: FakeExtractorClient
+) -> None:
+    fake_client.report = EarningsReport(is_earnings_call=True)
+
+    with pytest.raises(NoFinancialDataError):
+        await service.extract(text="Operator: welcome to the call. Thank you, goodbye.")
+
+
+async def test_transcript_without_guidance_still_succeeds(
+    service: ExtractionService, fake_client: FakeExtractorClient
+) -> None:
+    fake_client.report = fake_client.report.model_copy(update={"guidance": [], "risks": []})
+
+    result = await service.extract(text="Revenue was $4.2 billion. No outlook given.")
+
+    assert result.report.guidance == []
+    assert result.report.revenue is not None
