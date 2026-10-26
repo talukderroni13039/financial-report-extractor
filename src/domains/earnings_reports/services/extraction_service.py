@@ -5,7 +5,12 @@ import time
 from fastapi import UploadFile
 from starlette.concurrency import run_in_threadpool
 
-from src.core.exceptions import InputTooLargeError, InvalidInputError
+from src.core.exceptions import (
+    InputTooLargeError,
+    InvalidInputError,
+    NoFinancialDataError,
+    NotEarningsTranscriptError,
+)
 from src.domains.earnings_reports.schemas import EarningsReportResult, SourceType
 from src.llm.base import ExtractorClient
 from src.utils.file_reader import ensure_supported, extract_text
@@ -64,6 +69,15 @@ class ExtractionService:
             raise InputTooLargeError(f"Extracted text exceeds {max_chars} characters")
 
         report, usage = await self._client.extract(transcript)
+
+        # An empty answer must not look like success: "not a transcript" and "found nothing"
+        # are reported as errors, while a real transcript with no guidance still passes.
+        if not report.is_earnings_call:
+            raise NotEarningsTranscriptError(
+                "The text does not look like an earnings call transcript"
+            )
+        if report.revenue is None and not report.guidance and not report.risks:
+            raise NoFinancialDataError("No revenue, guidance or risks were found in the transcript")
 
         logger.info(
             "extraction completed",

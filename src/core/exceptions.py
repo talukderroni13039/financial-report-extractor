@@ -33,9 +33,28 @@ class FileParseError(AppError):
     code = "FILE_PARSE_FAILED"
 
 
+class NotEarningsTranscriptError(AppError):
+    status_code = 422
+    code = "NOT_EARNINGS_TRANSCRIPT"
+
+
+class NoFinancialDataError(AppError):
+    status_code = 422
+    code = "NO_FINANCIAL_DATA"
+
+
 class ExtractionFailedError(AppError):
+    """The LLM provider failed (API error, network, bad response)."""
+
     status_code = 502
     code = "EXTRACTION_FAILED"
+
+
+class ExtractionInvalidError(AppError):
+    """The model answered, but its output kept failing validation after every retry."""
+
+    status_code = 502
+    code = "EXTRACTION_INVALID"
 
 
 class LLMTimeoutError(AppError):

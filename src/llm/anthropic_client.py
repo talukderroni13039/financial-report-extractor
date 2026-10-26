@@ -4,8 +4,10 @@ import os
 import anthropic
 import instructor
 from anthropic import AsyncAnthropic
+from instructor.core import InstructorRetryException
+from pydantic import ValidationError
 
-from src.core.exceptions import ExtractionFailedError, LLMTimeoutError
+from src.core.exceptions import ExtractionFailedError, ExtractionInvalidError, LLMTimeoutError
 from src.domains.earnings_reports.prompts.extraction_prompt import (
     EXTRACTION_SYSTEM_PROMPT,
     build_user_message,
@@ -27,6 +29,25 @@ def _find_cause[E: BaseException](exc: BaseException, error_type: type[E]) -> E 
         seen.add(id(current))
         current = current.__cause__ or current.__context__
     return None
+
+
+def _failed_checks(exc: BaseException) -> list[str]:
+    """Which validation rules the model's last answer broke, as "field: message".
+
+    Uses only error locations and messages (our messages never contain transcript text);
+    the rejected input values are deliberately left out of logs.
+    """
+    validation_error = (
+        exc.failed_attempts[-1].exception
+        if isinstance(exc, InstructorRetryException) and exc.failed_attempts
+        else _find_cause(exc, ValidationError)
+    )
+    if not isinstance(validation_error, ValidationError):
+        return []
+    return [
+        f"{'.'.join(str(part) for part in error['loc']) or 'report'}: {error['msg']}"
+        for error in validation_error.errors(include_input=False, include_url=False)
+    ]
 
 
 class AnthropicExtractorClient:
@@ -65,11 +86,22 @@ class AnthropicExtractorClient:
                 system=EXTRACTION_SYSTEM_PROMPT,
                 messages=[{"role": "user", "content": build_user_message(text)}],
                 response_model=EarningsReport,
+                # Lets the schema's validators check quoted figures against the transcript.
+                context={"source_text": text},
             )
         except Exception as exc:
             if _find_cause(exc, anthropic.APITimeoutError) is not None:
                 raise LLMTimeoutError("The language model did not respond in time") from exc
             api_error = _find_cause(exc, anthropic.APIError)
+            failed_checks = _failed_checks(exc)
+            if api_error is None and failed_checks:
+                logger.warning(
+                    "LLM output rejected after all retries",
+                    extra={"failed_checks": failed_checks},
+                )
+                raise ExtractionInvalidError(
+                    "The model could not produce a report that passed validation"
+                ) from exc
             logger.error(
                 "LLM extraction failed",
                 extra={
@@ -78,7 +110,7 @@ class AnthropicExtractorClient:
                 },
             )
             raise ExtractionFailedError(
-                "Could not extract a valid earnings report from the transcript"
+                "The language model service failed; please try again later"
             ) from exc
 
         usage = TokenUsage(
